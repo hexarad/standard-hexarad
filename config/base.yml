@@ -1,4 +1,6 @@
 Hexarad/ExcessModuleName:
   Enabled: true
+  ModuleNames:
+    - FactoryBot
   Include:
     - "spec/**/*_spec.rb"
