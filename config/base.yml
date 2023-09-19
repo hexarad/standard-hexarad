@@ -1,0 +1,4 @@
+Hexarad/ExcessModuleName:
+  Enabled: true
+  Include:
+    - "spec/**/*_spec.rb"

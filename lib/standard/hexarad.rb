@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require_relative "hexarad/version"
+require "lint_roller"
 
 module Standard
   module Hexarad
-    class Error < StandardError; end
-    # Your code goes here...
   end
 end
+
+require_relative "hexarad/cop/excess_module_name"
+require_relative "hexarad/version"
+require_relative "hexarad/plugin"
