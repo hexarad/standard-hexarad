@@ -29,7 +29,7 @@ module CopInvoker
     actual_annotations = expected.with_offense_annotations(offenses)
 
     # assert_equal expected.to_s, actual_annotations.to_s
-    expect(expected.to_s).to eq actual_annotations.to_s
+    expect(actual_annotations.to_s).to eq expected.to_s
   end
 
   # Auto-correction can be tested using `assert_correction` after
@@ -68,7 +68,7 @@ module CopInvoker
     end
 
     # assert_equal expected, actual
-    expect(expected).to eq actual
+    expect(actual).to eq expected
   end
 
   # def assert_no_correction(cop)
