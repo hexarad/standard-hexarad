@@ -23,9 +23,8 @@ module RuboCop::Cop
       def each_excess_module_name(node, &block)
         excess_module_names.each do |module_name|
           matcher_name = "excess_#{module_name}?".to_sym
-          pattern = "(send $(const nil? $:#{module_name}) $_ ...)"
-
           unless respond_to?(matcher_name)
+            pattern = "(send $(const nil? $:#{module_name}) $_ ...)"
             self.class.def_node_matcher(matcher_name, pattern)
           end
           public_send(matcher_name, node, &block)
