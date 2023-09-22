@@ -6,34 +6,32 @@ module RuboCop::Cop
   module Hexarad
     class ExcessModuleName < RuboCop::Cop::Base
       extend RuboCop::Cop::AutoCorrector
-      include IgnoredNode
+      include RangeHelp
+
+      MSG = "No need to specify %<module_name>s module before calling #%<method_name>s"
 
       def on_send(node)
-        return unless node.receiver&.const_type?
-
-        module_name = node.receiver.const_name.to_s
-        return unless excess?(module_name)
-
-        method_name = node.method_name.to_s
-        msg = "No need to specify #{module_name} module before calling ##{method_name}"
-        add_offense(node, message: msg) do |corrector|
-          next if part_of_ignored_node?(node)
-
-          autocorrect(corrector, node, module_name)
+        each_excess_module_name(node) do |expr, module_name, method_name|
+          add_offense(node, message: format(MSG, module_name:, method_name:)) do |corrector|
+            corrector.remove(range_between(expr.loc.expression.begin_pos, expr.loc.expression.end_pos + 1))
+          end
         end
-
-        ignore_node(node)
       end
 
       private
 
-      def excess?(module_name)
-        Array(cop_config["ModuleNames"]).any? { _1 == module_name }
+      def each_excess_module_name(node, &block)
+        excess_module_names.each do |module_name|
+          matcher_name = "excess_#{module_name}?".to_sym
+          unless respond_to?(matcher_name)
+            pattern = "(send $(const nil? $:#{module_name}) $_ ...)"
+            self.class.def_node_matcher(matcher_name, pattern)
+          end
+          public_send(matcher_name, node, &block)
+        end
       end
 
-      def autocorrect(corrector, node, module_name)
-        corrector.replace(node, node.source.gsub("#{module_name}.", ""))
-      end
+      def excess_module_names = Array(cop_config["ModuleNames"])
     end
   end
 end
