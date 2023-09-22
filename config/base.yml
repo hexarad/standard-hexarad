@@ -4,3 +4,5 @@ Hexarad/ExcessModuleName:
     - FactoryBot
   Include:
     - "spec/**/*_spec.rb"
+Hexarad/CallableClass:
+  Enabled: true

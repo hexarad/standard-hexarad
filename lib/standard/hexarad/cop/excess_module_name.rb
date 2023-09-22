@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rubocop"
-
 module RuboCop::Cop
   module Hexarad
     class ExcessModuleName < RuboCop::Cop::Base
