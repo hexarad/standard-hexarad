@@ -8,39 +8,48 @@ RSpec.describe RuboCop::Cop::Hexarad::ExcessModuleName do
     })
   end
 
-  include CopInvoker
-
   it "finds excess module names" do
-    assert_offense cop, <<-RUBY
+    expect_offense <<-RUBY
       FactoryBot.create(:something)
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ No need to specify FactoryBot module before calling #create
     RUBY
 
-    assert_correction cop, <<-RUBY
+    expect_correction <<-RUBY
       create(:something)
     RUBY
   end
 
   it "finds excess module names when nested on the same line" do
-    assert_offense cop, <<-RUBY
+    expect_offense <<-RUBY
       FactoryBot.create(:something, other: FactoryBot.build(:other))
                                            ^^^^^^^^^^^^^^^^^^^^^^^^ No need to specify FactoryBot module before calling #build
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ No need to specify FactoryBot module before calling #create
     RUBY
 
-    assert_correction cop, <<-RUBY
+    expect_correction <<-RUBY
       create(:something, other: build(:other))
     RUBY
   end
 
   it "finds excess module names and only fix that problem" do
-    assert_offense cop, <<-RUBY
+    expect_offense <<-RUBY
       FactoryBot.build("FactoryBot.build")
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ No need to specify FactoryBot module before calling #build
     RUBY
 
-    assert_correction cop, <<-RUBY
+    expect_correction <<-RUBY
       build("FactoryBot.build")
+    RUBY
+  end
+
+  it "finds excess module names when being assigned" do
+    expect_offense <<-RUBY
+      thing = FactoryBot.build(:thing)
+              ^^^^^^^^^^^^^^^^^^^^^^^^ No need to specify FactoryBot module before calling #build
+    RUBY
+
+    expect_correction <<-RUBY
+      thing = build(:thing)
     RUBY
   end
 end
