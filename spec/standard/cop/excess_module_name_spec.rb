@@ -52,4 +52,25 @@ RSpec.describe RuboCop::Cop::Hexarad::ExcessModuleName do
       thing = build(:thing)
     RUBY
   end
+
+  context "with multiple excess module names configured" do
+    let(:config) do
+      RuboCop::Config.new("Hexarad/ExcessModuleName" => {
+        "Enabled" => true,
+        "ModuleNames" => ["FactoryBot", "OtherThing"]
+      })
+    end
+
+    it "finds all excess module names and replaces them" do
+      expect_offense <<-RUBY
+        FactoryBot.build(thing: OtherThing.my_method("Blah"))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ No need to specify OtherThing module before calling #my_method
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ No need to specify FactoryBot module before calling #build
+      RUBY
+
+      expect_correction <<-RUBY
+        build(thing: my_method("Blah"))
+      RUBY
+    end
+  end
 end
