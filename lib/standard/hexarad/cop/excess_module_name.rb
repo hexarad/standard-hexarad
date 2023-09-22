@@ -10,16 +10,8 @@ module RuboCop::Cop
 
       MSG = "No need to specify %<module_name>s module before calling #%<method_name>s"
 
-      def_node_matcher :module_node?, <<~PATTERN
-        (send
-          $(const nil? $_) $_
-          ...)
-      PATTERN
-
       def on_send(node)
-        module_node?(node) do |expr, module_name, method_name|
-          return unless excess?(module_name.to_s)
-
+        each_excess_module_name(node) do |expr, module_name, method_name|
           add_offense(node, message: format(MSG, module_name:, method_name:)) do |corrector|
             corrector.remove(range_between(expr.loc.expression.begin_pos, expr.loc.expression.end_pos + 1))
           end
@@ -28,9 +20,19 @@ module RuboCop::Cop
 
       private
 
-      def excess?(module_name)
-        Array(cop_config["ModuleNames"]).any? { _1 == module_name }
+      def each_excess_module_name(node, &block)
+        excess_module_names.each do |module_name|
+          matcher_name = "excess_#{module_name}?".to_sym
+          pattern = "(send $(const nil? $:#{module_name}) $_ ...)"
+
+          unless respond_to?(matcher_name)
+            self.class.def_node_matcher(matcher_name, pattern)
+          end
+          public_send(matcher_name, node, &block)
+        end
       end
+
+      def excess_module_names = Array(cop_config["ModuleNames"])
     end
   end
 end
