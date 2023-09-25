@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    standard-hexarad (1.0.1)
+    standard-hexarad (2.0.0)
       lint_roller
       rubocop
 
